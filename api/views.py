@@ -2,7 +2,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from .models import Post, Comment, Follow, Group, User
-from .serializers import PostSerializer, CommentSerializer, FollowSerializer
+from .serializers import PostSerializer, CommentSerializer, FollowSerializer, GroupSerializer
 from django.shortcuts import render, get_object_or_404
 from .permissions import IsOwnerOrReadOnly
 
@@ -30,21 +30,23 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class FollowViewSet(viewsets.ModelViewSet):
     queryset = Follow.objects.all()
-
     serializer_class = FollowSerializer
     #permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
-    
     def perform_create(self, serializer):
-        follow = get_object_or_404(User, id=self.request.data.get('following'))
+        follow = get_object_or_404(User, username=self.request.data.get('following'))
         serializer.save(user=self.request.user, following=follow)
-        #serializer.save(user=self.request.user, following=self.request.data.get('following')) #request.data.following
-        #serializer.save(user=self.request.user, following=self.kwargs['following'])
+
     def get_queryset(self):
-        return Follow.objects.all()
+        return Follow.objects.filter(user=self.request.user)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    #permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(slug=self.kwargs['slug'], title=self.kwargs['title'])
+
+    def get_queryset(self):
+        return Group.objects.all()
         
-    #def get_queryset(self):
-      #  queryset = Follow.objects.all()
-       # filter_name = self.request.query_params.get('search')
-       # if filter_name:
-       #     queryset = queryset.filter(Q(user__username=filter_name) | Q(following__username=filter_name))
-       # return queryset  

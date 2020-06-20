@@ -4,11 +4,12 @@ from .models import Post, Comment, Follow, Group
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    #author = serializers.ReadOnlyField(source='author.username')
+    user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
-        fields = ('id', 'author', 'post', 'text', 'created')
-        model = Comment
+        fields = ('id', 'title', 'slug', 'description', 'user')
+        model = Group
 
 
 class PostSerializer(serializers.ModelSerializer):
